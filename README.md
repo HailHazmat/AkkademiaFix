@@ -140,6 +140,41 @@ Copy the following into Command Prompt (with windows) or Terminal (with mac) to 
 git clone https://github.com/gaigutherz/Akkademia.git
 ```
 
+### Included Virtual Environment (venv)
+
+This repository ships with a pre-built Python virtual environment in the `venv/` folder. It is committed to Git intentionally so that you can clone the repo and start working immediately without having to track down specific package versions yourself.
+
+**Why the venv is included:** The project depends on exact versions of packages such as `allennlp==0.8.5`, `overrides==3.1.0`, `spacy`, `scipy`, `pytorch-pretrained-bert`, and many others that have complex interdependencies and are difficult to install correctly from scratch. Previous attempts to recreate the environment from `requirements.txt` alone often failed due to version conflicts, deprecated packages, or missing build dependencies. By including the venv directly, all of these issues are avoided — you get the exact working environment that was tested with the code.
+
+**PyTorch must be installed separately.** The PyTorch (`torch`) package and its CUDA libraries are excluded from the committed venv because they contain files exceeding GitHub's 100 MB per-file limit (~4 GB total). After cloning, activate the venv and install torch:
+
+```bash
+# Activate the venv
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+# Install the exact torch version used by this project (Windows with CUDA 11.7):
+pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 --extra-index-url https://download.pytorch.org/whl/cu117
+
+# For CPU-only (Mac/Linux or no NVIDIA GPU):
+pip install torch==1.13.1 torchvision==0.14.1
+```
+
+A fully pinned list of all installed packages is also available in `requirements_pinned.txt` for reference.
+
+### Windows: UTF-8 Encoding Setup
+
+When running translation scripts on Windows, you must set the Python I/O encoding to UTF-8 to correctly handle cuneiform Unicode characters. Run this command in your PowerShell window before running the translation script again:
+
+```powershell
+$env:PYTHONIOENCODING = "utf-8"
+python akkadian\translate_cuneiform.py
+```
+
+Without this, you may encounter encoding errors such as `UnicodeEncodeError` when processing cuneiform signs.
+
 ### Running
 Now you can develop the Akkademia repository and add your improvements!
 
@@ -166,6 +201,45 @@ print(transliterate_hmm(cuneiform_signs))
 print(transliterate_memm(cuneiform_signs))
 ```
 
+#### Interactive Translation
+Use `translate_interactive.py` for a REPL-style interactive translator powered by BiLSTM. It logs all translations with timestamps to `translation_log.txt`:
+
+```
+python translate_interactive.py
+```
+
+#### Multi-Model Comparison
+Use `translate_all_formats.py` to compare results from all models (BiLSTM, HMM, MEMM) plus a combined classifier side-by-side. It also highlights disputed signs where models disagree, and logs results to `full_comparison_log.txt`:
+
+```
+python translate_all_formats.py
+```
+
+#### Batch Translation
+Use `batch_translate.py` to translate all `.txt` files in a folder at once. It supports both cuneiform sign translation and transliteration-to-English translation:
+
+```
+python batch_translate.py
+```
+
+Place your input files in a folder (e.g., `input_texts/`) and select the translation mode when prompted.
+
+#### Checkpoint Repair
+If Fairseq model checkpoints become corrupted or have mismatched architecture metadata, use `repair_checkpoints.py` to fix them:
+
+```
+python repair_checkpoints.py
+```
+
+This resets the checkpoint's architecture to `fconv` (convolutional) and corrects source/target language settings.
+
+#### Testing
+Use `test_akkadian.py` for a quick smoke test of the BiLSTM transliteration on sample cuneiform signs:
+
+```
+python test_akkadian.py
+```
+
 ## Datasets
 For training the algorithms, we used the RINAP corpora (Royal Inscriptions of the Neo-Assyrian Period), which are available in JSON and XML/TEI formats thanks to the efforts of the Humboldt Foundation-funded Official Inscriptions of the Middle East in Antiquity (OIMEA) Munich Project led by Karen Radner and Jamie Novotny, available [here](<http://oracc.org/rinap/>). The current output in our website, package and code is based on training done on these corpora alone.
 
@@ -189,16 +263,133 @@ All the dataset are taken from their respective project webpages (see left side-
 
 In our repository the datasets are located in the "raw_data" directory. They can also be downloaded from the Github repository using git clone or zip download.
 
-## Project structure
+## Recent Changes & Updates
+
+This section documents all changes made to the codebase when updating from the original AkkademiaFix to the current working version.
+
+### 1. Modified Existing Scripts
+
+#### `akkadian/translate_from_cuneiform.py`
+File-based cuneiform-to-English translation via Fairseq. Key modifications:
+
+- **Windows Python compatibility**: Changed subprocess calls from hardcoded `python` to `sys.executable`, ensuring the correct Python interpreter is used regardless of environment (venv, conda, system install).
+- **Temporary directory handling**: Added `os.makedirs("tmp", exist_ok=True)` so the `tmp/` working directory is automatically created if missing, preventing `FileNotFoundError` on first run.
+- **Explicit Fairseq flags**: Added `--task translation`, `--source-lang ak`, `--target-lang en` to the Fairseq interactive CLI invocation. Without these, Fairseq may fail to locate the correct model or data-bin directory.
+- **Diagnostic error output**: Added stderr capture and diagnostic printing on subprocess failure, making it easier to debug Fairseq configuration or checkpoint issues.
+- **Model paths**: Uses `data-bin-not-divided-by-three-dots/` for data and `not_divided_by_three_dots_result.LR_0.1.MAX_TOKENS_4000/checkpoint_best.pt` for the cuneiform→English model checkpoint.
+
+#### `akkadian/translate_from_transliteration.py`
+File-based transliteration-to-English translation with input normalization. Key modifications:
+
+- **Same Windows compatibility fixes** as `translate_from_cuneiform.py`: `sys.executable`, `os.makedirs`, explicit Fairseq flags, and diagnostic error output.
+- **Input normalization**: Contains extensive substitution dictionaries (`letter_substitutions`, `number_substitutions`, `acute_grave_substitutions`, `logogram_substitutions`, `exception_substitutions`) applied via `organize_transliteration_line()` to normalize transliteration input before passing it to Fairseq.
+- **Model paths**: Uses `data-bin-transliteration/` for data and `trans_result.LR_0.1.MAX_TOKENS_4000/checkpoint_best.pt` for the transliteration→English model checkpoint.
+
+#### `akkadian/translate_cuneiform.py`
+Single-sentence cuneiform translation via temp file. Key modifications:
+
+- **UTF-8 encoding**: Added `encoding="utf-8"` to the temp file write (`cuneiform.tmp`), fixing `UnicodeEncodeError` on Windows when writing cuneiform Unicode characters.
+- Writes input to `cuneiform.tmp`, calls `translate_cuneiform_base()`, and removes the temp file after translation.
+
+#### `akkadian/translate_transliteration.py`
+Single-sentence transliteration translation via temp file. Same pattern as `translate_cuneiform.py`:
+
+- Writes input to `transliteration.tmp`, calls `translate_transliteration_base()`, and removes the temp file after translation.
+
+### 2. New Scripts Created
+
+#### `repair_checkpoints.py`
+Utility to repair Fairseq `.pt` checkpoint files that have missing or corrupted metadata. Injects the correct architecture and task settings:
+
+- Architecture: `fconv` (convolutional sequence-to-sequence, **not** transformer)
+- Task: `translation`
+- Settings: `share_all_embeddings=False`, `criterion='label_smoothed_cross_entropy'`
+- Uses `torch.load` / `torch.save` with `argparse.Namespace` to patch checkpoint args.
+- Repairs both checkpoint files: `not_divided_by_three_dots_result.LR_0.1.MAX_TOKENS_4000/checkpoint_best.pt` (cuneiform→en) and `trans_result.LR_0.1.MAX_TOKENS_4000/checkpoint_best.pt` (transliteration→en).
+
+#### `batch_translate.py`
+Batch translator for processing entire folders of `.txt` files:
+
+- Menu-driven: option 1 = cuneiform sign translation, option 2 = transliteration-to-English.
+- Iterates all `.txt` files in a user-specified input folder and writes results to a `results/` output folder (created at runtime).
+- Uses `sys.path` manipulation to import from the `akkadian/` package.
+
+#### `translate_all_formats.py`
+Multi-model comparison tool that transliterates cuneiform signs using all available models side-by-side:
+
+- Runs BiLSTM, HMM, MEMM, and a Combined classifier (gamma1=0.4, gamma2=0.2).
+- Highlights disputed signs where models disagree on the reading.
+- Logs detailed comparison results to `full_comparison_log.txt`.
+
+#### `translate_interactive.py`
+REPL-style interactive translator powered by BiLSTM:
+
+- Continuously accepts cuneiform input and prints transliteration output.
+- Logs all translations with timestamps to `translation_log.txt`.
+- Type `quit` or `exit` to stop.
+
+#### `test_akkadian.py`
+Quick smoke test for BiLSTM transliteration:
+
+- Tests on sample cuneiform signs to verify the model loads and produces output.
+- Useful for validating the environment is correctly set up.
+
+### 3. Modified Model & Project Files
+
+#### Fairseq Checkpoint Files (`.pt`)
+The two model checkpoint files were repaired using `repair_checkpoints.py`:
+
+- `not_divided_by_three_dots_result.LR_0.1.MAX_TOKENS_4000/checkpoint_best.pt` — cuneiform→English model
+- `trans_result.LR_0.1.MAX_TOKENS_4000/checkpoint_best.pt` — transliteration→English model
+
+Both had their internal metadata corrected to specify `fconv` architecture (convolutional seq2seq) and proper source/target language codes (`ak`→`en` and `tr`→`en` respectively).
+
+#### Virtual Environment
+A Python virtual environment (`venv/`) is included in the repository with all required dependencies pre-installed (allennlp, spacy, scipy, fairseq, etc.). PyTorch (`torch`) is excluded from the committed venv because its CUDA/cuDNN DLLs exceed GitHub's 100 MB per-file limit (~4 GB). After cloning, users only need to activate the venv and install torch (see the "Included Virtual Environment" section above). A fully pinned `requirements_pinned.txt` is also provided for reference.
+
+### 4. Temporary and Output Files & Directories
+
+| Path | Purpose |
+|------|---------|
+| `tmp/` | Working directory for temporary files created during translation (auto-created by scripts via `os.makedirs`) |
+| `results/` | Output directory for batch translations (created at runtime by `batch_translate.py`) |
+| `input_texts/` | Folder for placing input `.txt` files for batch translation |
+| `antiochus.txt` | Sample cuneiform test input (Antiochus inscription) |
+| `babylonking.txt` | Sample cuneiform test input (Babylonian king inscription) |
+| `translation_log.txt` | Automatic log of interactive translations with timestamps |
+| `translation_log_comparison.txt` | Log of translation comparisons |
+| `full_comparison_log.txt` | Detailed multi-model comparison log from `translate_all_formats.py` |
+
+## Project Structure
+
+**Root-level scripts**:
+
+	batch_translate.py: Batch translator for processing folders of cuneiform or transliteration text files.
+	
+	translate_all_formats.py: Multi-model comparison tool (BiLSTM, HMM, MEMM, Combined) with disputed-sign highlighting.
+	
+	translate_interactive.py: Interactive REPL translator with automatic logging to translation_log.txt.
+	
+	test_akkadian.py: Quick smoke test for BiLSTM transliteration on sample cuneiform signs.
+	
+	repair_checkpoints.py: Utility to repair Fairseq checkpoint metadata (architecture, language settings).
 
 **BiLSTM_input**: 
 
 	Contains dictionaries used for transliteration by BiLSTM.
-	
+
 **NMT_input**:
 
 	Contains dictionaries used for natural machine translation.
-	
+
+**input_texts**:
+
+	Folder for placing input text files for batch translation.
+
+**tmp**:
+
+	Working directory for temporary files created during Fairseq translation subprocess calls.
+
 **akkadian.egg-info**:
 
 	Information and settings for akkadian python package.
@@ -237,7 +428,35 @@ In our repository the datasets are located in the "raw_data" directory. They can
 	
 	translation_tokenize.py: Code for tokenization of translation task.
 	
+	translate_cuneiform.py: Translates cuneiform sentences to English via Fairseq NMT (UTF-8 encoding fix applied).
+	
+	translate_from_cuneiform.py: File-based cuneiform-to-English translation with Windows compatibility and Fairseq diagnostics.
+	
+	translate_from_transliteration.py: File-based transliteration-to-English translation with input normalization and Windows compatibility.
+	
+	translate_transliteration.py: Translates transliteration sentences to English via Fairseq NMT.
+	
 	transliterate.py: API for transliterating using all 3 algorithms.
+
+**not_divided_by_three_dots_result.LR_0.1.MAX_TOKENS_4000**:
+
+	Contains the trained Fairseq fconv checkpoint for cuneiform→English translation (checkpoint_best.pt).
+
+**trans_result.LR_0.1.MAX_TOKENS_4000**:
+
+	Contains the trained Fairseq fconv checkpoint for transliteration→English translation (checkpoint_best.pt).
+
+**data-bin-not-divided-by-three-dots**:
+
+	Binarized Fairseq training data for cuneiform→English translation.
+
+**data-bin-transliteration**:
+
+	Binarized Fairseq training data for transliteration→English translation.
+
+**venv**:
+
+	Pre-built Python virtual environment committed to the repository. Contains all project dependencies except PyTorch (which must be installed after cloning due to GitHub file size limits). This eliminates the need to manually resolve complex version dependencies.
 	
 **build/lib/akkadian**:
 

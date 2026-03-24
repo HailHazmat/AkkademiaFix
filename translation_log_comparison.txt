@@ -1,0 +1,10 @@
+[2026-03-20 03:21:55] Input: 𒊭 𒆷 𒅗 𒊭 𒄩 𒆷 𒊭 𒅗 ... 𒋫𒊭 𒊭 𒆷 𒄩 𒅗 ...
+  > BiLSTM:   ša la ka-ša-ha la ša-ka-TA ša ša-la ha-ka 
+  > HMM:      ša la-ka ša ha-la-ša ka-ta-ša ša la ha-ka 
+  > Combined: Error: overall_classifier() missing 20 required positional arguments: 'gamma1', 'gamma2', 'total_tokens', 'q_bi_counts', 'q_uni_counts', 'q', 'e', 'S', 'most_common_tag', 'possible_tags', 'lambda1', 'lambda2', 'logreg', 'vec', 'idx_to_tag_dict', 'predictor_from_file', 'model_from_file', 'id_to_tran', 'sign_to_id', and 'is_verbose'
+========================================
+[2026-03-20 03:22:11] Input: 𒊭 𒆷 𒅗 𒊭 𒄩 𒆷 𒊭 𒅗
+  > BiLSTM:   ša la ka-ša-HA.la ša-ka 
+  > HMM:      ša la-ka ša ha-la-ša ka 
+  > Combined: Error: overall_classifier() missing 20 required positional arguments: 'gamma1', 'gamma2', 'total_tokens', 'q_bi_counts', 'q_uni_counts', 'q', 'e', 'S', 'most_common_tag', 'possible_tags', 'lambda1', 'lambda2', 'logreg', 'vec', 'idx_to_tag_dict', 'predictor_from_file', 'model_from_file', 'id_to_tran', 'sign_to_id', and 'is_verbose'
+========================================

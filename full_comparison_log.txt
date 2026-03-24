@@ -1,0 +1,41 @@
+[2026-03-20 03:32:32] Input: 𒊭 𒆷 𒅗 𒊭 𒄩 𒆷 𒊭 𒅗 ... 𒋫𒊭 𒊭 𒆷 𒄩 𒅗 ...
+  BiLSTM:   ša la ka-ša-ha la ša-ka-TA ša ša-la ha-ka 
+  HMM:      ša la-ka ša ha-la-ša ka-ta-ša ša la ha-ka 
+  MEMM:     ša la-ka ša ha-la ša ka-ta-ša ša la ha-ka 
+----------------------------------------
+[2026-03-20 03:32:52] Input: 𒂉
+  BiLSTM:   dur₂ 
+  HMM:      DUR₂.
+  MEMM:     ŠID 
+----------------------------------------
+[2026-03-20 03:33:03] Input: 𒌒𒋗𒌺𒈾
+  BiLSTM:   ar₂-šu-UKKIN.NA 
+  HMM:      ub-šu-ukkin-na-
+  MEMM:     ub šu gan-na 
+----------------------------------------
+[2026-03-20 03:36:12] Input: 𒊭𒆷𒅗𒊭𒄩𒆷𒊭𒅗𒋫𒊭𒊭𒆷𒄩𒅗
+  BiLSTM:   ša la ka-ša-ha la ša-ka-TA ša ša-la ha-ka 
+  HMM:      ša la-ka ša ha-la-ša ka-ta-ša ša la ha-ka 
+  Combined: Error: local variable 'e' referenced before assignment
+  Disputed: N/A
+---------------------------------------------
+[2026-03-20 03:36:24] Input: 𒊭𒆷𒅗𒊭𒄩𒆷𒊭𒅗𒋫𒊭𒊭𒆷𒄩𒅗
+  BiLSTM:   ša la ka-ša-ha la ša-ka-TA ša ša-la ha-ka 
+  HMM:      ša la-ka ša ha-la-ša ka-ta-ša ša la ha-ka 
+  Combined: Error: local variable 'e' referenced before assignment
+  Disputed: N/A
+---------------------------------------------
+[2026-03-20 03:36:34] Input: 𒌒𒋗𒌺𒈾
+  BiLSTM:   ar₂-šu-UKKIN.NA 
+  HMM:      ub-šu-ukkin-na-
+  Combined: Error: local variable 'e' referenced before assignment
+  Disputed: N/A
+---------------------------------------------
+[2026-03-20 03:37:18] Input: 𒊭𒆷𒅗𒊭𒄩𒆷𒊭𒅗𒋫𒊭𒊭𒆷𒄩𒅗
+  Combined: ša la ka-ša-ha la ša-ka-TA ša ša la ha-ka 
+  Disputed: ša [la/la-] [ka-/ka] [ša-/ša] [ha/ha-] [la/la-] [ša-/ša] ka-[TA/ta-] ša [ša-/ša] la ha-ka 
+---------------------------------------------
+[2026-03-20 03:37:56] Input: 𒃻𒅘𒁀𒄿𒈬𒊒𒅖𒁲𒈠𒀀𒋾
+  Combined: ša₂ nak-BA i-mu-ru iš-di ma-a-TI 
+  Disputed: ša₂ nak-[BA/ba-] i-mu-ru iš-[di/di-] ma-a-[TI/ti] 
+---------------------------------------------

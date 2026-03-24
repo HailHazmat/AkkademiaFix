@@ -5,7 +5,7 @@ from translate_from_cuneiform import translate_cuneiform_base
 
 def translate_cuneiform(sentence):
     tmp_file = "cuneiform.tmp"
-    with open(tmp_file, "w") as f:
+    with open(tmp_file, "w", encoding="utf-8") as f:
         f.write(sentence)
 
     raw_result = translate_cuneiform_base(tmp_file, True).stdout

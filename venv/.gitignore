@@ -1,0 +1,10 @@
+# Virtual environment is intentionally tracked in this repository.
+# The auto-generated ignore-all rule has been removed so that
+# the full venv can be committed to Git, ensuring reproducible
+# dependency versions without extra installation steps.
+#
+# PyTorch (torch) is excluded because its CUDA/cuDNN DLLs exceed
+# GitHub's 100 MB per-file limit (~4 GB total). After cloning,
+# run the torch install command documented in the README.
+**/torch/
+**/torch-*.dist-info/

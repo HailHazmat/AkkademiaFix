@@ -1,0 +1,85 @@
+[2026-03-20 02:35:29]
+Input:  𒁹𒀭𒊹𒆕𒀀𒌋𒌋𒃲𒌋𒌋𒆗𒌋𒌋𒊹𒌋𒌋𒆳𒀸
+Output: {1}-AN.ŠAR₂— DU₃-A MAN GAL MAN KAL MAN ŠAR₂ MAN KUR AŠ 
+------------------------------
+[2026-03-20 03:10:42]
+Input:  𒊭 𒆷 𒅗 𒊭
+Output: ša la-ka-ša 
+------------------------------
+[2026-03-20 03:11:00]
+Input:  𒊭 𒆷 𒅗 𒊭 𒄩 𒆷 𒊭 𒅗 ... 𒋫𒊭 𒊭 𒆷 𒄩 𒅗 ...
+Output: ša la ka-ša-ha la ša-ka-TA ša ša-la ha-ka 
+------------------------------
+[2026-03-20 03:12:25]
+Input:  𒊭 𒆷 𒅗 𒊭 𒄩 𒆷 𒊭 𒅗
+Output: ša la ka-ša-HA.la ša-ka 
+------------------------------
+[2026-03-20 03:12:26]
+Input:  𒄩 𒆷 𒊭 𒅗 𒋫 𒆷 𒊭 𒅗
+Output: HA.LA ša-ka-ta-la ša-ka-
+------------------------------
+[2026-03-20 03:12:28]
+Input:  𒊭 𒊭 𒆷 𒄩 𒅗 𒈠 𒆷 𒊭
+Output: ša ša la ha-DUG₄-ma la ša 
+------------------------------
+[2026-03-20 03:13:56]
+Input:  𒅗 𒆷 𒊭 𒋫 𒆷 𒊭 𒄩 𒅗
+Output: ka-la ša TA la ša-ha-ka 
+------------------------------
+[2026-03-20 03:13:56]
+Input:  𒊭 𒄩 𒆷 𒅗 𒈾 𒊭 𒆷 𒅗
+Output: ša HA.la-ka-na ša-la-ka 
+------------------------------
+[2026-03-20 03:13:58]
+Input:  𒋫 𒆷 𒊭 𒅗 𒄩 𒆷 𒊭 𒅗
+Output: TA la ša-ka-ha la ša-ka-
+------------------------------
+[2026-03-20 03:15:59]
+Input:  cuneiform_signs = "𒊭 𒆷 𒅗 𒊭 𒄩 𒆷 𒊭 𒅗"
+Output: ša la ka-ša-HA.la ša-ka 
+------------------------------
+[2026-03-20 03:24:25] Input: 𒊭 𒆷 𒅗 𒊭 𒄩 𒆷 𒊭 𒅗 ... 𒋫𒊭 𒊭 𒆷 𒄩 𒅗 ...
+  BiLSTM: ša la ka-ša-ha la ša-ka-TA ša ša-la ha-ka 
+  HMM:    ša la-ka ša ha-la-ša ka-ta-ša ša la ha-ka 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
+[2026-03-20 03:25:20] Input: 𒄩 𒆷 𒊭 𒅗 𒋫 𒆷 𒊭 𒅗
+  BiLSTM: HA.LA ša-ka-ta-la ša-ka-
+  HMM:    ha-la-ša ka-ta-la ša ka 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
+[2026-03-20 03:25:26] Input: 𒊭 𒊭 𒆷 𒄩 𒅗 𒈠 𒆷 𒊭
+  BiLSTM: ša ša la ha-DUG₄-ma la ša 
+  HMM:    ša ša la ha-ka-ma-la ša 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
+[2026-03-20 03:25:31] Input: 𒅗 𒆷 𒊭 𒋫 𒆷 𒊭 𒄩 𒅗
+  BiLSTM: ka-la ša TA la ša-ha-ka 
+  HMM:    ka-la-ša ta-la ša ha-ka 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
+[2026-03-20 03:25:32] Input: 𒊭 𒄩 𒆷 𒅗 𒈾 𒊭 𒆷 𒅗
+  BiLSTM: ša HA.la-ka-na ša-la-ka 
+  HMM:    ša ha-la-ka NA ša la-ka 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
+[2026-03-20 03:25:37] Input: 𒊭 𒄩 𒆷 𒅗 𒈾 𒊭 𒆷 𒅗
+  BiLSTM: ša HA.la-ka-na ša-la-ka 
+  HMM:    ša ha-la-ka NA ša la-ka 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
+[2026-03-20 03:25:47] Input: 𒊭 𒆷 𒅗 𒊭 𒈠 𒆷 𒊭 𒅗
+  BiLSTM: ša la-ka-ša ma-la ša-ka-
+  HMM:    ša la-ka ša ma-la ša ka 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
+[2026-03-20 03:25:47] Input: 𒄩 𒆷 𒊭 𒅗 𒋫 𒆷 𒊭 𒈾
+  BiLSTM: HA.LA ša ka-ta-la ša-na 
+  HMM:    ha-la-ša ka-ta-la ša na 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
+[2026-03-20 03:25:48] Input: 𒊭 𒊭 𒆷 𒅗 𒄩 𒆷 𒊭 𒅗
+  BiLSTM: ša ša-la ka-ha la ša-ka-
+  HMM:    ša ša la ha-la-ša ka 
+  Status: ⚠️ DISAGREEMENT
+----------------------------------------
